@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 
-export class User extends Document {
+export interface User extends Document {
 
     _id: string;
     locale: string;
@@ -8,7 +8,6 @@ export class User extends Document {
     primaryType: PrimaryType;
     emailId: string;
     email_verified: boolean;
-    roles: UserRoles[];
     firstName: string;
     lastName: string;
     user_status: UserStatus;
@@ -16,6 +15,7 @@ export class User extends Document {
     deleted: boolean;
     createTime: number;
     updatedTime: number;
+    roles: UserRoles[];
 }
 
 export enum ProviderType {
