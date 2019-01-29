@@ -7,7 +7,9 @@ export const userSchema = new mongoose.Schema({
     provider: {
         type: String, enum: ['SELF', 'GOOGLE', 'FACEBOOK'], default: 'SELF'
     },
-    primaryType: String,
+    primaryType: {
+        type: String, enum: ['EMAIL', 'PHONE_NUMBER', 'USERNAME'], default: 'EMAIL'
+    },
     emailId: String,
     email_verified: Boolean,
     roles: [{
@@ -16,7 +18,7 @@ export const userSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     user_status: {
-        type: String, enum: ['REGISTERED', 'VERIFIED', 'DELETED'], default: 'USER'
+        type: String, enum: ['REGISTERED', 'VERIFIED', 'DELETED'], default: 'REGISTERED'
     },
     profilePicUrl: String,
     deleted: Boolean,
