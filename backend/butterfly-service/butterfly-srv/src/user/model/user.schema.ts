@@ -8,7 +8,7 @@ export const userSchema = new mongoose.Schema({
         type: String, enum: ['SELF', 'GOOGLE', 'FACEBOOK'], default: 'SELF'
     },
     primaryType: {
-        type: String, enum: ['EMAIL', 'PHONE_NUMBER', 'USERNAME'], default: 'EMAIL'
+        type: String, enum: ['EMAIL', 'PHONE_NUMBER', 'USERNAME'], default: 'EMAIL`'
     },
     emailId: String,
     email_verified: Boolean,
