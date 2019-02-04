@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { userSchema } from "src/user/model/user.schema";
+import { UserSchema } from "src/user/model/user.schema";
 const uuid = require('uuid/v1');
 
 export const LanguageSchema = new mongoose.Schema({
@@ -10,7 +10,7 @@ export const LanguageSchema = new mongoose.Schema({
     country: String,
     region: String,
     countryCode: String,
-    actorId: { type: String, ref: userSchema }
+    actorId: { type: String, ref: UserSchema }
 }, {
         timestamps: { createdAt: 'createTime', updatedAt: 'updateTime' },
         versionKey: false // You should be aware of the outcome after set to false
