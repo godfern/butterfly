@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { LanguageSchema } from 'src/language/model/language.schema';
 const uuid = require('uuid/v1');
 
 export const CategorySchema = new mongoose.Schema({
@@ -9,7 +8,7 @@ export const CategorySchema = new mongoose.Schema({
         _id: { type: String, default: uuid },
         message: String
     }],
-    langId: { type: String, ref: LanguageSchema }
+    langId: mongoose.Schema.Types.Mixed
 },
     {
         timestamps: { createdAt: 'createTime', updatedAt: 'updateTime' },
