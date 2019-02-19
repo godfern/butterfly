@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
-import { LanguageModule } from './language/language.module';
 import { CategoryModule } from './category/category.module';
+import { LanguageModule } from './language/language.module';
+import { LoggerMiddleware } from './logger/LoggerMiddleware';
+import { UserModule } from './user/user.module';
 const MONGO_DB = require('./database.conf.json');
 
 @Module({
@@ -13,4 +14,10 @@ const MONGO_DB = require('./database.conf.json');
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('')
+  }
+}
