@@ -1,12 +1,14 @@
 import { Injectable, Inject, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { User } from "./model/user.interface";
+import { User, UserStatus } from "./model/user.interface";
+import { OtpLookup } from "./model/otp.lookup.interface";
 
 @Injectable()
 export class UserService {
 
-    constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
+    constructor(@InjectModel('User') private readonly userModel: Model<User>,
+        @InjectModel('OtpLookup')private readonly otpLookupModel:Model<OtpLookup>) { }
 
     getUserService(name: string) {
         return "Welcome " + name + " butterfly";
@@ -18,8 +20,15 @@ export class UserService {
     }
 
     async updateUser(userReq: User) {
-        console.log(userReq)
-        return await this.userModel.updateOne({ _id: userReq._id }, { $set: { userReq } }, { new: true });
+        //  var user = new this.userModel(userReq);
+        //  user._id = userReq._id;
+        return await this.userModel.update({ _id: userReq._id }, { userReq});
+    }
+
+    async updateUserEmailVerified(userId) {
+        //  var user = new this.userModel(userReq);
+        //  user._id = userReq._id;
+        return await this.userModel.update({ _id: userId }, { userStatus: UserStatus.VERIFIED,emailVerified : true });
     }
 
     async getUser(userId: string) {
@@ -36,5 +45,21 @@ export class UserService {
 
     async removeUser(_id: string) {
         return await this.userModel.findByIdAndRemove(_id);
+    }
+
+    async createOtpLookup(otpLookup:OtpLookup){
+        return await this.otpLookupModel.create(otpLookup);
+    }
+
+    async updateOtpLookup(otpLookup: OtpLookup) {
+        return await this.otpLookupModel.update({_id:otpLookup._id},{otpLookup});
+    }
+
+    async getOtpLookupEntry(id:string){
+        return await this.otpLookupModel.findById({_id:id});
+    }
+
+    async getOtpLookupsByUser(userId: string) {
+        return await this.otpLookupModel.find({ userId: userId });
     }
 }

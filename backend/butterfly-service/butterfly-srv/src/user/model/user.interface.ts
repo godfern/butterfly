@@ -7,10 +7,10 @@ export interface User extends Document {
     provider: ProviderType;
     primaryType: PrimaryType;
     emailId: string;
-    email_verified: boolean;
+    emailVerified: boolean;
     firstName: string;
     lastName: string;
-    user_status: UserStatus;
+    userStatus: UserStatus;
     profilePicUrl: string;
     deleted: boolean;
     createTime: number;
