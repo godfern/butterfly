@@ -1,12 +1,12 @@
-import { Controller, Inject, Get, Query, Post, Body, BadRequestException, Param, Put, Delete } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { async } from "rxjs/internal/scheduler/async";
-import { queue } from "rxjs/internal/scheduler/queue";
+import { UserServiceHelper } from "./user.service.helper";
 
 @Controller('user')
 export class UserController {
 
-    constructor(@Inject('UserService') private userService: UserService) {
+    constructor(@Inject('UserService') private userService: UserService,
+        @Inject('UserServiceHelper') private serviceHelper: UserServiceHelper) {
     }
 
     @Get('/test')
@@ -30,6 +30,36 @@ export class UserController {
         const res = await this.userService.createUser(userReq);
         console.log(res);
         return res;
+    }
+
+    @Post('/initiate/verification')
+    async initiateUserVerification(@Query() query) {
+
+        if (!query.userId) {
+            throw new BadRequestException('userid is missing');
+        }
+        console.log("initiating verfication for " + query.userId);
+
+        const res = await this.serviceHelper.initiateVerification(query.userId);
+        console.log(res);
+        return res;
+    }
+
+    @Post('/verify/otp')
+    async userVerifyOtp(@Query() query) {
+
+        if (!query.userId) {
+            throw new BadRequestException('userid is missing');
+        }
+        if (!query.code) {
+            throw new BadRequestException('verification code is missing');
+        }
+        if (!query.accId) {
+            throw new BadRequestException('accId is missing');
+        }
+
+        return await this.serviceHelper.verifyOtp(query.userId, query.accId, query.code);
+
     }
 
     @Get('/:userId')
@@ -65,4 +95,8 @@ export class UserController {
         return await this.userService.removeUser(params.userId);
     }
 
+    // @Get('/send/tesst/mail')
+    // async testMail() {
+    //     return await this.serviceHelper.testMail();
+    // }
 }

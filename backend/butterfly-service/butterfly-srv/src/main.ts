@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
+import * as cors from 'cors';
 import { AppModule } from './app.module';
-
+import { MyLogger } from './logger/MyLogger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('butterfly-user-srv');
-  // app.use(cors());
+  app.setGlobalPrefix('butterfly-srv');
+  app.useLogger(MyLogger);
+  app.use(cors());
   await app.listen(3000);
 }
 bootstrap();

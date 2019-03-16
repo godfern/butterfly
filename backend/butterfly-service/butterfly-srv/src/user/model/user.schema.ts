@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 const uuid = require('uuid/v1');
 
-export const userSchema = new mongoose.Schema({
+export const UserSchema = new mongoose.Schema({
     _id: { type: String, default: uuid },
     locale: String,
     provider: {
