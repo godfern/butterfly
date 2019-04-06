@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
+import { User } from "./model/user.interface";
 
 @Controller('user')
 export class UserController {
@@ -38,6 +39,9 @@ export class UserController {
         if (!body.userId) {
             throw new BadRequestException('userid is missing');
         }
+        if (!body.emailId) {
+            throw new BadRequestException('emailId is missing in body is');
+        }
         console.log("initiating verfication for " + body.userId);
 
         const res = await this.serviceHelper.initiateVerification(body.userId);
@@ -46,19 +50,19 @@ export class UserController {
     }
 
     @Post('/verify/otp')
-    async userVerifyOtp(@Query() query) {
+    async userVerifyOtp(@Body() body) {
 
-        if (!query.userId) {
+        if (!body.userId) {
             throw new BadRequestException('userid is missing');
         }
-        if (!query.code) {
+        if (!body.code) {
             throw new BadRequestException('verification code is missing');
         }
-        if (!query.accId) {
+        if (!body.accId) {
             throw new BadRequestException('accId is missing');
         }
 
-        return await this.serviceHelper.verifyOtp(query.userId, query.accId, query.code);
+        return await this.serviceHelper.verifyOtp(body.userId, body.accId, body.code);
 
     }
 
@@ -73,7 +77,7 @@ export class UserController {
     }
 
     @Put('/:userId')
-    async updateUser(@Param() params, @Body() userReq) {
+    async updateUser(@Param() params, @Body() userReq: User) {
 
         if (!params.userId) {
             throw new BadRequestException('user id is empty');
@@ -81,6 +85,13 @@ export class UserController {
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
+        if(!userReq.emailId){
+            throw new BadRequestException('emailId is missing in body is');
+        }
+        if (!userReq._id) {
+            throw new BadRequestException('_id is missing in body is');
+        }
+
         console.log(userReq);
         const res = await this.userService.updateUser(userReq);
         console.log(res);
