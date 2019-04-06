@@ -33,14 +33,14 @@ export class UserController {
     }
 
     @Post('/initiate/verification')
-    async initiateUserVerification(@Query() query) {
+    async initiateUserVerification(@Body() body) {
 
-        if (!query.userId) {
+        if (!body.userId) {
             throw new BadRequestException('userid is missing');
         }
-        console.log("initiating verfication for " + query.userId);
+        console.log("initiating verfication for " + body.userId);
 
-        const res = await this.serviceHelper.initiateVerification(query.userId);
+        const res = await this.serviceHelper.initiateVerification(body.userId);
         console.log(res);
         return res;
     }
