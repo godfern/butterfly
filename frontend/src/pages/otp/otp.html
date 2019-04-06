@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      OTP
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>OTP sent sucessfully</ion-card-title>
+    </ion-card-header>
+
+    <ion-item class="activated">
+      <ion-label>{{verificationDetails.name}}! We have sent an OTP to your email account {{verificationDetails.email}}.
+        Please use it verify your account
+      </ion-label>
+      <ion-label>
+          <ion-chip>
+              <ion-label>{{countDown | async | formatTime}}</ion-label>
+              <ion-icon name="time" color="dark"></ion-icon>
+            </ion-chip>
+      </ion-label>
+      
+    </ion-item>
+
+    <ion-item *ngIf="optVerification">
+      <form (ngSubmit)="accoutVerify()" #accoutVerifyForm="ngForm">
+        <ion-row>
+          <ion-col>
+            <ion-list inset>
+              <ion-item>
+                <ion-input type="text" placeholder="Enter OTP" name="otp" [(ngModel)]="verificationDetails.otp"
+                  required></ion-input>
+              </ion-item>
+            </ion-list>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col class="signup-col">
+            <button ion-button class="submit-btn" full type="submit"
+              [disabled]="!accoutVerifyForm.form.valid">Verify</button>
+          </ion-col>
+        </ion-row>
+
+      </form>
+    </ion-item>
+  </ion-card>
+
+</ion-content>
