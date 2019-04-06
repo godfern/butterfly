@@ -27,6 +27,7 @@ export class UserController {
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
+         
         console.log(userReq);
         const res = await this.userService.createUser(userReq);
         console.log(res);
@@ -64,6 +65,16 @@ export class UserController {
 
         return await this.serviceHelper.verifyOtp(body.userId, body.accId, body.code);
 
+    }
+
+    @Get('/email/:emailId')
+    async getUserByEmail(@Param() params) {
+
+        if (!params.emailId) {
+            throw new BadRequestException('emailId is empty');
+        }
+
+        return await this.userService.getUserByEmail(params.emailId);
     }
 
     @Get('/:userId')

@@ -15,6 +15,15 @@ export class UserService {
     }
 
     async createUser(userReq: User) {
+
+        var isExits = await this.getUserByEmail(userReq.emailId);
+
+        if(isExits){
+            throw new HttpException({
+                status: HttpStatus.CONFLICT,
+                error: `User already exists with email ${userReq.emailId}`,
+            }, HttpStatus.CONFLICT);
+        }
         const createdCat = new this.userModel(userReq);
         return await createdCat.save();
     }
@@ -41,6 +50,10 @@ export class UserService {
                 error: `No user with id ${userId}`,
             }, 204);
         }
+    }
+
+    async getUserByEmail(email: string) {
+        return await this.userModel.findOne({ emailId: email });
     }
 
     async removeUser(_id: string) {
