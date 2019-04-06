@@ -76,18 +76,28 @@ export class UserService {
         loginLookup.userId = userId;
         loginLookup.emailId = userRes.emailId;
 
-        console.log('createLoginLookup');
-        bcrypt.hash(userRes.password, saltRounds, async function (err, res) {
-            if (res) {
-                loginLookup.password = res;
-                console.log("bcrypt success", res)
-                const loginLookUpRes = await this.loginLookupModel.create(loginLookup);
-            } else {
-                console.log("bcrypt err", err)
-                return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, err, null);
-            }
-            // Store hash in your password DB.
-        });
+        var hash = bcrypt.hashSync(userRes.password, saltRounds);
+
+        // const res = await bcrypt.hash(userRes.password, saltRounds, async function (err, res) {
+        //     console.log('createLoginLookup res ', res);
+        //     console.log('createLoginLookup err ', err);
+        //     if (res) {
+        //         return res;
+        //     } else {
+        //         return undefined;
+        //     }
+
+        // });
+        console.log('hash ', hash);
+
+        if (hash) {
+            loginLookup.password = hash;
+            console.log("bcrypt success", loginLookup)
+            return await this.loginLookupModel.create(loginLookup);
+        } else {
+
+            return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
+        }
         // bcrypt.hash(userRes.password, saltRounds).then(async res => {
         //     loginLookup.password = res;
         //     console.log("bcrypt success",res)
@@ -104,10 +114,10 @@ export class UserService {
 
         const loginLookup = await this.getLoginLookupByEmail(emailId);
         if (loginLookup) {
-            const match = bcrypt.compare(password, loginLookup.password);
+            const match = bcrypt.compareSync(password, loginLookup.password);
 
             if (match) {
-                return new ResponseEntity(true, HttpStatus.OK, null, dbUser);
+                return  dbUser;
             } else {
                 return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid username / password", null);
             }

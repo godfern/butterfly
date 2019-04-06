@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put, Query } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query } from "@nestjs/common";
 import { ResponseEntity } from "src/common/ResponseEntity";
 import { User } from "./model/user.interface";
 import { UserService } from "./user.service";
@@ -25,16 +25,15 @@ export class UserController {
     @Post('/create')
     async createUser(@Body() userReq) {
 
-        console.log("create user",userReq)
+        console.log("create user", userReq)
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
         var userRes = await this.userService.getUserByEmail(userReq.emailId);
-        console.log("is ", userRes);
 
         // User response is success then user alreay exists so return 
         if (userRes.success) {
-            return userRes;
+            return new ResponseEntity(false, HttpStatus.CONFLICT, `User already exists with email ${userReq.emailId}`, null);
         }
         console.log(userReq);
 
@@ -50,7 +49,7 @@ export class UserController {
         if (!body.userId) {
             throw new BadRequestException('userid is missing');
         }
-       
+
         console.log("initiating verfication for " + body.userId);
 
         const res = await this.serviceHelper.initiateVerification(body.userId);
@@ -78,20 +77,20 @@ export class UserController {
     @Post('/login')
     async loginUser(@Body() body) {
 
+        console.log("login user")
         if (!body.emailId) {
-            throw new BadRequestException('userid is missing in body');
+            throw new BadRequestException('emailId is missing in body');
         }
         if (!body.password) {
             throw new BadRequestException('password is missing in body');
         }
-        console.log("initiating verfication for " + body.userId);
+ 
+        var isUserExists = await this.userService.getUserByEmail(body.emailId);
 
-        var isUserExists = await this.getUserByEmail(body.emailId);
-
-        if (isUserExists) {
+        if (isUserExists.success) {
             return await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
         } else {
-            return new ResponseEntity(false, HttpStatus.NO_CONTENT, `No user with email ${body.emailId}`, null);
+            return isUserExists;
         }
 
     }
