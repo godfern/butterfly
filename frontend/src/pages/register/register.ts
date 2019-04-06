@@ -12,13 +12,14 @@ import { AuthServiceProvider } from '../../providers/auth-service/auth-service';
 export class RegisterPage {
 
   createSuccess = false;
-  registerCredentials = { name: '', email: '', password: '', confirmation_password: '' };
+  registerCredentials = { locale:"en_IN",firstName: '', emailId: '', password: '', confirmation_password: '',primaryType: "EMAIL", roles:["USER"]};
+  data = '';
 
   constructor(
     private nav: NavController,
     private auth: AuthServiceProvider,
     private alertCtrl: AlertController
-  ) {}
+  ) { }
 
   public register() {
     if (this.registerCredentials.password != this.registerCredentials.confirmation_password) {
@@ -27,6 +28,8 @@ export class RegisterPage {
       this.auth.register(this.registerCredentials).subscribe(success => {
         if (success) {
           this.createSuccess = true;
+          this.data = success;
+
           this.showPopup("Success", "Account created.");
         } else {
           this.showPopup("Error", "Problem creating account.");
@@ -47,7 +50,7 @@ export class RegisterPage {
           text: 'OK',
           handler: data => {
             if (this.createSuccess) {
-              this.nav.push('OtpPage',this.registerCredentials);
+              this.nav.push('OtpPage', this.data);
             }
           }
         }

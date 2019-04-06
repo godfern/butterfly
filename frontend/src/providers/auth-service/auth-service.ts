@@ -6,14 +6,15 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AuthServiceProvider {
   
-  // Change to this http://ed43bb3b.ngrok.io/api/login
   static readonly LOGIN_URL = 'http://localhost:3000/butterfly-user-srv/user/e011d010-26e9-11e9-b971-ad9612dbcabf';
-  // Change to this http://ed43bb3b.ngrok.io/api/register
-  static readonly REGISTER_URL = 'http://localhost:3000/butterfly-user-srv/user/create';
+  static readonly REGISTER_URL = 'http://localhost:3000/butterfly-srv/user/create';
   access: boolean;
   token: string;
+  registrationDetails:string;
 
-  constructor(public http: Http) {}
+
+
+  constructor(public http: Http) { }
 
   // Login
   public login(credentials) {
@@ -56,10 +57,10 @@ export class AuthServiceProvider {
         this.http.post(AuthServiceProvider.REGISTER_URL, credentials)
         .map(res => res.json())
         .subscribe( data => {
-          console.log(data);
+          this.registrationDetails =  data;
         });
 
-        observer.next(true);
+        observer.next(this.registrationDetails);
         observer.complete();
       });
     }
