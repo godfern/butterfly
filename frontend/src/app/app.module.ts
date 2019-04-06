@@ -9,6 +9,7 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AuthServiceProvider } from '../providers/auth-service/auth-service';
+import { OTPServiceProvider } from '../providers/otp-service/otp-service';
 
 import { MyApp } from './app.component';
 
@@ -31,7 +32,8 @@ import { MyApp } from './app.component';
     StatusBar,
     SplashScreen,
     AppRoutingModule,
-    AuthServiceProvider
+    AuthServiceProvider,
+    OTPServiceProvider
   ]
 })
 export class AppModule {}
