@@ -5,9 +5,12 @@ import { UserSchema } from "./model/user.schema";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
+import { LoginLookupSchema } from "./model/login.lookup.schema";
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }, { name: 'OtpLookup', schema: OtpLookupSchema }])],
+    imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema },
+     { name: 'LoginLookup', schema: LoginLookupSchema }
+    ,{ name: 'OtpLookup', schema: OtpLookupSchema }])],
     controllers: [UserController],
     providers: [UserService, UserServiceHelper],
 })

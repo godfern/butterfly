@@ -24,6 +24,7 @@
     "@nestjs/core": "^5.4.0",
     "@nestjs/mongoose": "^3.0.2",
     "@types/mongoose": "^5.0.15",
+    "bcrypt": "^3.0.5",
     "cors": "^2.8.5",
     "date-and-time": "^0.6.3",
     "mongoose": "^5.1.1",

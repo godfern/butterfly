@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put, Query } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put, Query } from "@nestjs/common";
+import { ResponseEntity } from "src/common/ResponseEntity";
+import { User } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
-import { User } from "./model/user.interface";
 
 @Controller('user')
 export class UserController {
@@ -24,12 +25,21 @@ export class UserController {
     @Post('/create')
     async createUser(@Body() userReq) {
 
+        console.log("create user",userReq)
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
-         
+        var userRes = await this.userService.getUserByEmail(userReq.emailId);
+        console.log("is ", userRes);
+
+        // User response is success then user alreay exists so return 
+        if (userRes.success) {
+            return userRes;
+        }
         console.log(userReq);
+
         const res = await this.userService.createUser(userReq);
+
         console.log(res);
         return res;
     }
@@ -40,9 +50,7 @@ export class UserController {
         if (!body.userId) {
             throw new BadRequestException('userid is missing');
         }
-        if (!body.emailId) {
-            throw new BadRequestException('emailId is missing in body is');
-        }
+       
         console.log("initiating verfication for " + body.userId);
 
         const res = await this.serviceHelper.initiateVerification(body.userId);
@@ -64,6 +72,27 @@ export class UserController {
         }
 
         return await this.serviceHelper.verifyOtp(body.userId, body.accId, body.code);
+
+    }
+
+    @Post('/login')
+    async loginUser(@Body() body) {
+
+        if (!body.emailId) {
+            throw new BadRequestException('userid is missing in body');
+        }
+        if (!body.password) {
+            throw new BadRequestException('password is missing in body');
+        }
+        console.log("initiating verfication for " + body.userId);
+
+        var isUserExists = await this.getUserByEmail(body.emailId);
+
+        if (isUserExists) {
+            return await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
+        } else {
+            return new ResponseEntity(false, HttpStatus.NO_CONTENT, `No user with email ${body.emailId}`, null);
+        }
 
     }
 
@@ -96,7 +125,7 @@ export class UserController {
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
-        if(!userReq.emailId){
+        if (!userReq.emailId) {
             throw new BadRequestException('emailId is missing in body is');
         }
         if (!userReq._id) {
@@ -116,6 +145,9 @@ export class UserController {
         }
         return await this.userService.removeUser(params.userId);
     }
+
+
+
 
     // @Get('/send/tesst/mail')
     // async testMail() {

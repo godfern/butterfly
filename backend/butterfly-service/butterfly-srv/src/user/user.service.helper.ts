@@ -85,7 +85,6 @@ export class UserServiceHelper {
         }
 
         if (lookupEntry) {
-
             // todo expire time check
             // dateTime.format(new Date(lookupEntry.expireTime)).
             if (lookupEntry.code == code) {
