@@ -60,11 +60,13 @@ export class UserService {
     async getUserByEmail(email: string) {
         const userRes = await this.userModel.findOne({ emailId: email });
 
+        var response;
         if (userRes) {
-            return new ResponseEntity(true, HttpStatus.OK, null, userRes);
+            response =  new ResponseEntity(true, HttpStatus.OK, null, userRes);
         } else {
-            return new ResponseEntity(false, HttpStatus.NO_CONTENT, `No user with email ${email}`, null);
+            response = new ResponseEntity(false, HttpStatus.NO_CONTENT, `No user with email ${email}`, null);
         }
+        return response
     }
 
     async removeUser(_id: string) {
@@ -78,16 +80,6 @@ export class UserService {
 
         var hash = bcrypt.hashSync(userRes.password, saltRounds);
 
-        // const res = await bcrypt.hash(userRes.password, saltRounds, async function (err, res) {
-        //     console.log('createLoginLookup res ', res);
-        //     console.log('createLoginLookup err ', err);
-        //     if (res) {
-        //         return res;
-        //     } else {
-        //         return undefined;
-        //     }
-
-        // });
         console.log('hash ', hash);
 
         if (hash) {
@@ -95,19 +87,9 @@ export class UserService {
             console.log("bcrypt success", loginLookup)
             return await this.loginLookupModel.create(loginLookup);
         } else {
-
             return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
         }
-        // bcrypt.hash(userRes.password, saltRounds).then(async res => {
-        //     loginLookup.password = res;
-        //     console.log("bcrypt success",res)
-        //     const loginLookUpRes = await this.loginLookupModel.create(loginLookup);
-        //     return new ResponseEntity(true, HttpStatus.CREATED, null, loginLookUpRes);
-        // }).catch(err => {
-        //     console.log("bcrypt err", err)
-
-        //     return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, err, null);
-        // });
+      
     }
 
     async checkLoginLookup(emailId, password, dbUser) {
