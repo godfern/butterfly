@@ -25,17 +25,19 @@ export class RegisterPage {
     if (this.registerCredentials.password != this.registerCredentials.confirmation_password) {
       this.showPopup("Error", 'The password confirmation does not match.');
     } else {
-      this.auth.register(this.registerCredentials).subscribe(success => {
-        if (success) {
+      this.auth.register(this.registerCredentials)
+      .subscribe(response => {
+        if (response) {
           this.createSuccess = true;
-          this.data = success;
+          this.data = response;
 
           this.showPopup("Success", "Account created.");
         } else {
-          this.showPopup("Error", "Problem creating account.");
+          this.showPopup("Error", response);
         }
       },
         error => {
+          this.createSuccess = false;
           this.showPopup("Error", error);
         });
     }

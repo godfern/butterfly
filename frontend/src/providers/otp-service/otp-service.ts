@@ -7,39 +7,29 @@ import { RegistrationService } from '../../services/registration.service';
 
 @Injectable()
 export class OTPServiceProvider {
-    static readonly OTP_URL = 'http://localhost:3000/butterfly-srv/user/initiate/verification';
+    static readonly SEND_OTP_URL = 'http://localhost:3000/butterfly-srv/user/initiate/verification';
+    static readonly VERIFY_OTP_URL = 'http://localhost:3000/butterfly-srv/user/verify/otp';
     access: boolean;
     RegistrationService: RegistrationService[];
 
     constructor(public http: Http) { }
 
-    //Send OTP
-    // public sendOtp(credentials) {
-    //     if (!credentials.id) {
-    //         console.log("Please insert credentials.");
-    //     } else {
-    //         return Observable.create(observer => {
-    //             this.http.post(OTPServiceProvider.OTP_URL, {userId:credentials.id})
-    //                 .map(res => res.json())
-    //                 .subscribe(data => {
-    //                     console.log('Otp data', data);
-    //                     this.access = data;
-    //                 });
-
-    //             setTimeout(() => {
-    //                 observer.next(this.access);
-    //             }, 500);
-
-    //             setTimeout(() => {
-    //                 observer.complete();
-    //             }, 1000);
-    //         }, err => console.error(err));
-    //     }
-    // }
 
     sendOTP(credentials): Observable<RegistrationService[]> {
-        return this.http.post(OTPServiceProvider.OTP_URL, {userId:credentials.id})
-                .map((res)=> res.json())
-                
-      }
+        return this.http.post(OTPServiceProvider.SEND_OTP_URL, { userId: credentials.id })
+            .map((res) => res.json())
+
+    }
+
+    verifyOTP(credentials): Observable<RegistrationService[]> {
+        let payload = {
+            userId:credentials.id,
+            accId:credentials.activationId,
+            code:credentials.otp
+        };
+        return this.http.post(OTPServiceProvider.VERIFY_OTP_URL, payload)
+            .map((res) => res.json())
+    }
+
+
 }
