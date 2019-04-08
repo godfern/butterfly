@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
-import {RegistrationService} from "../../services/registration.service";
+import { OAuthService } from 'angular-oauth2-oidc';
+import { RegistrationService } from "../../services/registration.service";
 
 @Injectable()
 export class AuthServiceProvider {
@@ -16,7 +17,7 @@ export class AuthServiceProvider {
   registrationDetails: string;
   registerSubmit: Observable<any>;
 
-  constructor(private httpClient : Http) { }
+  constructor(private httpClient: Http, private oauthService: OAuthService) { }
 
   // Login
   public login(credentials) {
@@ -61,11 +62,16 @@ export class AuthServiceProvider {
 
   private handleError(error: Response) {
     return Observable.throw(error.statusText);
-}
+  }
 
-  // Get Token
-  public getToken() {
-    return this.token;
+  getAll(): Observable<any> {
+    const headers: Headers = new Headers();
+    headers.append('Authorization', this.oauthService.authorizationHeader());
+
+    let options = new RequestOptions({ headers: headers });
+
+    return this.httpClient.get('http://localhost:8100/good-beers', options)
+      .map((response: Response) => response.json());
   }
 
   // Logout
@@ -75,5 +81,4 @@ export class AuthServiceProvider {
       observer.complete();
     });
   }
-
 }

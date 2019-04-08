@@ -13,9 +13,9 @@ import { OTPServiceProvider } from '../../providers/otp-service/otp-service';
 })
 export class OtpPage implements OnInit {
 
-  public optVerification: boolean = true; 
-  verificationDetails = { email: '',name: '', otp: '', id:'', activationId:''};
-  activationId='';
+  public optVerification: boolean = true;
+  verificationDetails = { email: '', name: '', otp: '', id: '', activationId: '' };
+  activationId = '';
   countDown;
   counter = 600;
   tick = 1000;
@@ -23,7 +23,7 @@ export class OtpPage implements OnInit {
   data = '';
 
 
-  constructor(public nav: NavController, public navParams: NavParams, public otp: OTPServiceProvider,private alertCtrl: AlertController) {
+  constructor(public nav: NavController, public navParams: NavParams, public otp: OTPServiceProvider, private alertCtrl: AlertController) {
     this.verificationDetails.id = navParams.data._id;
 
     this.countDown = Observable.timer(0, this.tick)
@@ -33,17 +33,17 @@ export class OtpPage implements OnInit {
 
   ngOnInit() {
     this.otp.sendOTP(this.verificationDetails)
-      .subscribe((response)=>{
-        console.log(response); 
+      .subscribe((response) => {
+        console.log(response);
         this.verificationDetails.activationId = response.data.accId;
-    },
-    error => {
-      this.showPopup("Error", error.message);
-    });
+      },
+        error => {
+          this.showPopup("Error", error.message);
+        });
   }
 
-  public accoutVerify(){
-    if (!this.verificationDetails.otp  || !this.verificationDetails.id || !this.verificationDetails.activationId) {
+  public accoutVerify() {
+    if (!this.verificationDetails.otp || !this.verificationDetails.id || !this.verificationDetails.activationId) {
       this.showPopup("Error", 'Something went wrong.');
     } else {
       this.otp.verifyOTP(this.verificationDetails).subscribe(success => {
