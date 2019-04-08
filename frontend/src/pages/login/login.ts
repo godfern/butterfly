@@ -17,7 +17,7 @@ export class LoginPage {
   private password: string;
   private error: string;
   loading: Loading;
-  registerCredentials = { email: '', password: '' };
+  loginCredentials = { emailId: '', password: '' };
 
   constructor(
     public nav: NavController,
@@ -43,7 +43,7 @@ export class LoginPage {
     this.nav.push('RegisterPage');
   }
 
-  public login() {
+  public login1() {
     this.oauthService.createAndSaveNonce().then(nonce => {
       const authClient = new OktaAuth({
         clientId: this.oauthService.clientId,
@@ -79,19 +79,19 @@ export class LoginPage {
     });
   }
 
-  // public login() {
-  //   this.showLoading()
-  //   this.auth.login(this.registerCredentials).subscribe(allowed => {
-  //     if (allowed) {
-  //       this.nav.setRoot(HomePage);
-  //     } else {
-  //       this.showError("These credentials do not match our records.");
-  //     }
-  //   },
-  //     error => {
-  //       this.showError(error);
-  //     });
-  // }
+  public login() {
+    this.showLoading()
+    this.auth.login(this.loginCredentials).subscribe(allowed => {
+      if (allowed) {
+        this.nav.push('HomePage');
+      } else {
+        this.showError("These credentials do not match our records.");
+      }
+    },
+      error => {
+        this.showError(error);
+      });
+  }
 
   showLoading() {
     this.loading = this.loadingCtrl.create({
@@ -109,7 +109,7 @@ export class LoginPage {
       subTitle: text,
       buttons: ['OK']
     });
-    // alert.present(prompt);
+    alert.present(alert);
   }
 
 

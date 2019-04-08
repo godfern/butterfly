@@ -10,7 +10,7 @@ import { RegistrationService } from "../../services/registration.service";
 @Injectable()
 export class AuthServiceProvider {
 
-  static readonly LOGIN_URL = 'http://localhost:3000/butterfly-user-srv/user/e011d010-26e9-11e9-b971-ad9612dbcabf';
+  static readonly LOGIN_URL = 'http://localhost:3000/butterfly-srv/user/login';
   static readonly REGISTER_URL = 'http://localhost:3000/butterfly-srv/user/create';
   access: boolean;
   token: string;
@@ -21,32 +21,15 @@ export class AuthServiceProvider {
 
   // Login
   public login(credentials) {
-    if (credentials.email === null || credentials.password === null) {
+    if (credentials.emailId === null || credentials.password === null) {
       return Observable.throw("Please insert credentials.");
     } else {
-      return Observable.create(observer => {
-
-        this.httpClient.get(AuthServiceProvider.LOGIN_URL, credentials)
-          .map(res => res.json())
-          .subscribe(data => {
-            if (data.access_token) {
-              this.token = 'Bearer ' + data.access_token;
-              this.access = true;
-            } else {
-              this.access = false;
-            }
-          });
-
-        setTimeout(() => {
-          observer.next(this.access);
-        }, 500);
-
-        setTimeout(() => {
-          observer.complete();
-        }, 1000);
-
-
-      }, err => console.error(err));
+      return this.httpClient
+        .post(AuthServiceProvider.LOGIN_URL, credentials)
+        .map((response) => {
+          return response.json();
+        })
+        .catch(this.handleError);
     }
   }
 
