@@ -1,74 +1,60 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { RegistrationService } from "../../services/registration.service";
 
 @Injectable()
 export class AuthServiceProvider {
-  
-  static readonly LOGIN_URL = 'http://localhost:3000/butterfly-user-srv/user/e011d010-26e9-11e9-b971-ad9612dbcabf';
+
+  static readonly LOGIN_URL = 'http://localhost:3000/butterfly-srv/user/login';
   static readonly REGISTER_URL = 'http://localhost:3000/butterfly-srv/user/create';
   access: boolean;
   token: string;
-  registrationDetails:string;
+  registrationDetails: string;
+  registerSubmit: Observable<any>;
 
-
-
-  constructor(public http: Http) { }
+  constructor(private httpClient: Http, private oauthService: OAuthService) { }
 
   // Login
   public login(credentials) {
-    if (credentials.email === null || credentials.password === null) {
+    if (credentials.emailId === null || credentials.password === null) {
       return Observable.throw("Please insert credentials.");
     } else {
-      return Observable.create(observer => {
-
-        this.http.get(AuthServiceProvider.LOGIN_URL, credentials)
-        .map(res => res.json())
-        .subscribe( data => {
-          if (data.access_token) {
-            this.token = 'Bearer ' + data.access_token;
-            this.access = true;
-          } else {
-            this.access = false;
-          }
-        });
-
-        setTimeout(() => {
-              observer.next(this.access);
-          }, 500);
-
-        setTimeout(() => {
-              observer.complete();
-          }, 1000);
-
-
-      }, err => console.error(err));
+      return this.httpClient
+        .post(AuthServiceProvider.LOGIN_URL, credentials)
+        .map((response) => {
+          return response.json();
+        })
+        .catch(this.handleError);
     }
   }
 
   // Register
-  public register(credentials) {
-    if (credentials.name === null || credentials.email === null || credentials.password === null) {
-      return Observable.throw("Please insert credentials");
-    } else {
-      return Observable.create(observer => {
-
-        this.http.post(AuthServiceProvider.REGISTER_URL, credentials)
-        .map(res => res.json())
-        .subscribe( data => {
-          this.registrationDetails =  data;
-        });
-
-        observer.next(this.registrationDetails);
-        observer.complete();
-      });
-    }
+  public register(credentials): Observable<RegistrationService[]> {
+    return this.httpClient
+      .post(AuthServiceProvider.REGISTER_URL, credentials)
+      .map((response) => {
+        return response.json();
+      })
+      .catch(this.handleError);
   }
 
-  // Get Token
-  public getToken() {
-    return this.token;
+  private handleError(error: Response) {
+    return Observable.throw(error.statusText);
+  }
+
+  getAll(): Observable<any> {
+    const headers: Headers = new Headers();
+    headers.append('Authorization', this.oauthService.authorizationHeader());
+
+    let options = new RequestOptions({ headers: headers });
+
+    return this.httpClient.get('http://localhost:8100/good-beers', options)
+      .map((response: Response) => response.json());
   }
 
   // Logout
@@ -78,5 +64,4 @@ export class AuthServiceProvider {
       observer.complete();
     });
   }
-
 }

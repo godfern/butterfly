@@ -1,16 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
-
+import { HttpClientModule } from '@angular/common/http';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
-
 import { IonicApp, IonicModule } from 'ionic-angular';
-
+import { OAuthService, OAuthModule } from 'angular-oauth2-oidc';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthServiceProvider } from '../providers/auth-service/auth-service';
 import { OTPServiceProvider } from '../providers/otp-service/otp-service';
-
 import { MyApp } from './app.component';
 
 @NgModule({
@@ -20,9 +18,9 @@ import { MyApp } from './app.component';
   imports: [
     BrowserModule,
     HttpModule,
-    IonicModule.forRoot(MyApp, {
-
-    })
+    HttpClientModule,
+    OAuthModule.forRoot(),
+    IonicModule.forRoot(MyApp, {})
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -33,7 +31,8 @@ import { MyApp } from './app.component';
     SplashScreen,
     AppRoutingModule,
     AuthServiceProvider,
-    OTPServiceProvider
+    OTPServiceProvider,
+    OAuthService
   ]
 })
-export class AppModule {}
+export class AppModule { }

@@ -1,9 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, AlertController } from 'ionic-angular';
 import { AuthServiceProvider } from '../../providers/auth-service/auth-service';
-// import { OtpPage } from '../otp/otp';
-
-
 @IonicPage()
 @Component({
   selector: 'page-register',
@@ -12,7 +9,7 @@ import { AuthServiceProvider } from '../../providers/auth-service/auth-service';
 export class RegisterPage {
 
   createSuccess = false;
-  registerCredentials = { locale:"en_IN",firstName: '', emailId: '', password: '', confirmation_password: '',primaryType: "EMAIL", roles:["USER"]};
+  registerCredentials = { locale: "en_IN", firstName: '', emailId: '', password: '', confirmation_password: '', primaryType: "EMAIL", roles: ["USER"] };
   data = '';
 
   constructor(
@@ -25,19 +22,21 @@ export class RegisterPage {
     if (this.registerCredentials.password != this.registerCredentials.confirmation_password) {
       this.showPopup("Error", 'The password confirmation does not match.');
     } else {
-      this.auth.register(this.registerCredentials).subscribe(success => {
-        if (success) {
-          this.createSuccess = true;
-          this.data = success;
+      this.auth.register(this.registerCredentials)
+        .subscribe(response => {
+          if (response) {
+            this.createSuccess = true;
+            this.data = response;
 
-          this.showPopup("Success", "Account created.");
-        } else {
-          this.showPopup("Error", "Problem creating account.");
-        }
-      },
-        error => {
-          this.showPopup("Error", error);
-        });
+            this.showPopup("Success", "Account created.");
+          } else {
+            this.showPopup("Error", response);
+          }
+        },
+          error => {
+            this.createSuccess = false;
+            this.showPopup("Error", error);
+          });
     }
   }
 
@@ -58,5 +57,4 @@ export class RegisterPage {
     });
     alert.present();
   }
-
 }
