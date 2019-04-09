@@ -64,7 +64,7 @@ export class UserService {
         if (userRes) {
             response =  new ResponseEntity(true, HttpStatus.OK, null, userRes);
         } else {
-            response = new ResponseEntity(false, HttpStatus.NO_CONTENT, `No user with email ${email}`, null);
+            response = new ResponseEntity(false, HttpStatus.BAD_REQUEST, `No user with email ${email}`, null);
         }
         return response
     }
