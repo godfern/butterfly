@@ -34,7 +34,7 @@ export class AuthServiceProvider {
   }
 
   // Register
-  public register(credentials): Observable<RegistrationService[]> {
+  public register(credentials){
     return this.httpClient
       .post(AuthServiceProvider.REGISTER_URL, credentials)
       .map((response) => {

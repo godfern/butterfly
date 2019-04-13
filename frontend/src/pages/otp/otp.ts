@@ -73,7 +73,7 @@ export class OtpPage implements OnInit {
           text: 'OK',
           handler: data => {
             if (this.createSuccess) {
-              this.nav.push('OtpPage', this.data);
+              this.nav.push('LoginPage');
             }
           }
         }

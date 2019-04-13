@@ -12,7 +12,7 @@ declare const OktaAuth: any;
 })
 export class LoginPage {
 
-  @ViewChild('email') email: any;
+  @ViewChild('email') emailId: any;
   private username: string;
   private password: string;
   private error: string;
@@ -35,7 +35,7 @@ export class LoginPage {
 
   ionViewDidLoad(): void {
     setTimeout(() => {
-      this.email.setFocus();
+      this.emailId.setFocus();
     }, 500);
   }
 
