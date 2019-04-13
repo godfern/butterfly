@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res } from "@nestjs/common";
 import { ResponseEntity } from "src/common/ResponseEntity";
-import { User } from "./model/user.interface";
+import { User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
 
@@ -23,7 +23,7 @@ export class UserController {
     }
 
     @Post('/create')
-    async createUser(@Body() userReq,@Res() response){
+    async createUser(@Body() userReq, @Res() response) {
 
         console.log("create user", userReq)
         if (!userReq) {
@@ -34,7 +34,7 @@ export class UserController {
         // User response is success then user alreay exists so return 
         if (userRes.success) {
             return response.status(HttpStatus.CONFLICT)
-            .json(new ResponseEntity(false, HttpStatus.CONFLICT, `User already exists with email ${userReq.emailId}`, null));
+                .json(new ResponseEntity(false, HttpStatus.CONFLICT, `User already exists with email ${userReq.emailId}`, null));
         }
         console.log(userReq);
 
@@ -45,7 +45,7 @@ export class UserController {
     }
 
     @Post('/initiate/verification')
-    async initiateUserVerification(@Body() body,@Res() response) {
+    async initiateUserVerification(@Body() body, @Res() response) {
 
         if (!body.userId) {
             throw new BadRequestException('userid is missing');
@@ -54,12 +54,12 @@ export class UserController {
         console.log("initiating verfication for " + body.userId);
 
         const res = await this.serviceHelper.initiateVerification(body.userId);
-        
+
         return response.status(res.statusCode).json(res);
     }
 
     @Post('/verify/otp')
-    async userVerifyOtp(@Body() body,@Res() response) {
+    async userVerifyOtp(@Body() body, @Res() response) {
 
         if (!body.userId) {
             throw new BadRequestException('userid is missing');
@@ -71,14 +71,14 @@ export class UserController {
             throw new BadRequestException('accId is missing');
         }
 
-        const res =  await this.serviceHelper.verifyOtp(body.userId, body.accId, body.code);
+        const res = await this.serviceHelper.verifyOtp(body.userId, body.accId, body.code);
 
         return response.status(res.statusCode).json(res);
 
     }
 
     @Post('/login')
-    async loginUser(@Body() body,@Res() response) {
+    async loginUser(@Body() body, @Res() response) {
 
         console.log("login user")
         if (!body.emailId) {
@@ -87,26 +87,32 @@ export class UserController {
         if (!body.password) {
             throw new BadRequestException('password is missing in body');
         }
- 
+
         var isUserExists = await this.userService.getUserByEmail(body.emailId);
 
         var res;
         if (isUserExists.success) {
-           res=  await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
+
+            if (isUserExists.data.userStatus == UserStatus.VERIFIED) {
+                res = await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
+            } else {
+                return response.status(HttpStatus.BAD_REQUEST).json(`User email ${body.emailId} is not verified yet.`);
+            }
+
         } else {
-            res= isUserExists;
+            res = isUserExists;
         }
 
         return response.status(res.statusCode).json(res);
     }
 
     @Get('/email/:emailId')
-    async getUserByEmail(@Param() params,@Res() res) {
+    async getUserByEmail(@Param() params, @Res() res) {
 
         if (!params.emailId) {
             throw new BadRequestException('emailId is empty');
         }
-        var response =await this.userService.getUserByEmail(params.emailId);
+        var response = await this.userService.getUserByEmail(params.emailId);
 
         return res.status(response.statusCode).json(response);
     }
