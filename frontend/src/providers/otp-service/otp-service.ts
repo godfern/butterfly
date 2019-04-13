@@ -10,18 +10,18 @@ export class OTPServiceProvider {
     static readonly SEND_OTP_URL = 'http://localhost:3000/butterfly-srv/user/initiate/verification';
     static readonly VERIFY_OTP_URL = 'http://localhost:3000/butterfly-srv/user/verify/otp';
     access: boolean;
-    RegistrationService: RegistrationService[];
+    // RegistrationService: RegistrationService[];
 
     constructor(public http: Http) { }
 
 
-    sendOTP(credentials): Observable<RegistrationService[]> {
+    sendOTP(credentials) {
         return this.http.post(OTPServiceProvider.SEND_OTP_URL, { userId: credentials.id })
             .map((res) => res.json())
 
     }
 
-    verifyOTP(credentials): Observable<RegistrationService[]> {
+    verifyOTP(credentials){
         let payload = {
             userId:credentials.id,
             accId:credentials.activationId,

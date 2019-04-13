@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuthServiceProvider } from '../providers/auth-service/auth-service';
 import { OTPServiceProvider } from '../providers/otp-service/otp-service';
 import { MyApp } from './app.component';
+import { LoginPageModule } from '../pages/login/login.module';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,9 @@ import { MyApp } from './app.component';
     HttpModule,
     HttpClientModule,
     OAuthModule.forRoot(),
-    IonicModule.forRoot(MyApp, {})
+    IonicModule.forRoot(MyApp, {}),
+    AppRoutingModule,
+    LoginPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -29,7 +32,6 @@ import { MyApp } from './app.component';
   providers: [
     StatusBar,
     SplashScreen,
-    AppRoutingModule,
     AuthServiceProvider,
     OTPServiceProvider,
     OAuthService
