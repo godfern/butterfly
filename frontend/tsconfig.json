@@ -2,16 +2,18 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": false,
+    "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "lib": [
       "dom",
       "es2015"
     ],
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
-    "target": "es5",
+    "target": "es2015",
     "noEmit": true 
   },
   "include": [
