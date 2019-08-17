@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { ResponseEntity } from "src/common/ResponseEntity";
+import { ResponseEntity } from "../common/ResponseEntity";
 import { AddUserModel } from "./model/add.user.model";
 import { LoginLookup } from "./model/login.lookup.interface";
 import { OtpLookup } from "./model/otp.lookup.interface";

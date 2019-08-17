@@ -9,17 +9,20 @@ let dateTime = require('date-and-time');
 var nodeMailer = require('nodemailer');
 
 let transpoter = nodeMailer.createTransport({
-    service: 'gmail',
-    secure: false,
-    port: 25,
+    service:'gmail',
+    logger: true,
+    port: 465,
+    secure: true,
     auth: {
         user: 'ggtest1213@gmail.com',
-        pass: 'ggtest123456'
+        pass: '1213ggtest'
     },
     tls: {
         rejectUnauthorized: false
     }
 });
+
+
 
 
 @Injectable()
@@ -53,7 +56,7 @@ export class UserServiceHelper {
             var otpLookupRes = await this.userService.createOtpLookup(otpLookup);
 
             let HelperOptions = {
-                from: 'gg1213@gmail.com',
+                from: 'ggtest1213@gmail.com',
                 to: user.emailId,
                 subject: "Butterfly verification code",
                 text: "Your verification code is " + otpLookup.code

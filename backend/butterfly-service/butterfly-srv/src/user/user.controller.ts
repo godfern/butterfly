@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res } from "@nestjs/common";
-import { ResponseEntity } from "src/common/ResponseEntity";
+import { ResponseEntity } from "../common/ResponseEntity";
 import { User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
