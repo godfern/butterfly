@@ -3,7 +3,9 @@ import { ResponseEntity } from "../common/ResponseEntity";
 import { User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
+import { ApiUseTags } from "@nestjs/swagger";
 
+@ApiUseTags('user')
 @Controller('user')
 export class UserController {
 

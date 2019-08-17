@@ -1,6 +1,8 @@
 import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put } from "@nestjs/common";
 import { LanguageService } from "../component/language.service";
+import { ApiUseTags } from "@nestjs/swagger";
 
+@ApiUseTags('language')
 @Controller('language')
 export class LanguageController {
     constructor(@Inject('LanguageService') private langService: LanguageService) {
