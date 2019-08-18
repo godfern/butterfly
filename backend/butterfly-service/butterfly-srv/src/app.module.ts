@@ -10,8 +10,8 @@ import { AuthModule } from 'auth/auth.module';
 const MONGO_DB = require('./database.conf.json');
 
 @Module({
-  imports: [AuthModule,UserModule, MongooseModule.forRoot(`mongodb://${MONGO_DB.hosts}/${MONGO_DB.database_name}${MONGO_DB.replica_set}`,
-    { user: MONGO_DB.user_name, pass: MONGO_DB.password, auth: { authdb: 'admin' } })],
+  imports: [AuthModule,UserModule, MongooseModule.forRoot(/*`mongodb://${MONGO_DB.hosts}/${MONGO_DB.database_name}${MONGO_DB.replica_set}`,
+    { user: MONGO_DB.user_name, pass: MONGO_DB.password, auth: { authdb: 'admin' } }*/MONGO_DB.uri, { useNewUrlParse:true})],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -26,7 +26,6 @@ export class UserController {
         return await this.userService.getUserService(query.name);
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/create')
     async createUser(@Body() userReq, @Res() response) {
 

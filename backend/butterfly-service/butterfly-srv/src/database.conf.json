@@ -1,7 +1,7 @@
 {
     "user_name": "admin",
     "password": "admin123",
-    "hosts": "localhost:27017",
+    "uri": "mongodb+srv://butterfly-user-write:Butterfly1234@butterfly-cluster-lmy3d.mongodb.net/test?retryWrites=true&w=majority",
     "database_name": "butterfly",
     "replica_set": ""
 }
