@@ -6,11 +6,14 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
 import { LoginLookupSchema } from "./model/login.lookup.schema";
+import { AuthModule } from "auth/auth.module";
+import { AuthService } from "auth/auth.service";
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema },
+    imports: [AuthModule,
+        MongooseModule.forFeature([{ name: 'User', schema: UserSchema },
      { name: 'LoginLookup', schema: LoginLookupSchema }
-    ,{ name: 'OtpLookup', schema: OtpLookupSchema }])],
+        , { name: 'OtpLookup', schema: OtpLookupSchema }])],
     controllers: [UserController],
     providers: [UserService, UserServiceHelper],
 })

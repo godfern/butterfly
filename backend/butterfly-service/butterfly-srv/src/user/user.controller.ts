@@ -1,9 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
 import { ResponseEntity } from "../common/ResponseEntity";
 import { User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
 import { ApiUseTags } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiUseTags('user')
 @Controller('user')
@@ -19,6 +20,7 @@ export class UserController {
         return "success";
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/welcome')
     async getUserService(@Query() query) {
         return await this.userService.getUserService(query.name);
@@ -79,6 +81,7 @@ export class UserController {
 
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Post('/login')
     async loginUser(@Body() body, @Res() response) {
 
@@ -96,6 +99,10 @@ export class UserController {
         if (isUserExists.success) {
 
             if (isUserExists.data.userStatus == UserStatus.VERIFIED) {
+
+                //  once user is verified return access token
+
+                // check password from lookup collection
                 res = await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
             } else {
                 return response.status(HttpStatus.BAD_REQUEST).json(`User email ${body.emailId} is not verified yet.`);
@@ -108,6 +115,7 @@ export class UserController {
         return response.status(res.statusCode).json(res);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/email/:emailId')
     async getUserByEmail(@Param() params, @Res() res) {
 
@@ -119,6 +127,7 @@ export class UserController {
         return res.status(response.statusCode).json(response);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/:userId')
     async getUser(@Param() params) {
 
@@ -129,6 +138,7 @@ export class UserController {
         return await this.userService.getUser(params.userId);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Put('/:userId')
     async updateUser(@Param() params, @Body() userReq: User) {
 
@@ -151,6 +161,7 @@ export class UserController {
         return res;
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Delete('/remove/:userId')
     async removeUser(@Param() params) {
         if (!params.userId) {
@@ -158,9 +169,6 @@ export class UserController {
         }
         return await this.userService.removeUser(params.userId);
     }
-
-
-
 
     // @Get('/send/tesst/mail')
     // async testMail() {

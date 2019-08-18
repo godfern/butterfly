@@ -1,5 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { AuthService } from "auth/auth.service";
 import { Model } from "mongoose";
 import { ResponseEntity } from "../common/ResponseEntity";
 import { AddUserModel } from "./model/add.user.model";
@@ -15,7 +16,8 @@ export class UserService {
 
     constructor(@InjectModel('User') private readonly userModel: Model<User>,
         @InjectModel('OtpLookup') private readonly otpLookupModel: Model<OtpLookup>,
-        @InjectModel('LoginLookup') private readonly loginLookupModel: Model<LoginLookup>) { }
+        @InjectModel('LoginLookup') private readonly loginLookupModel: Model<LoginLookup>,
+        @Inject('AuthService') private authService: AuthService) { }
 
     getUserService(name: string) {
         return "Welcome " + name + " butterfly";
@@ -62,7 +64,7 @@ export class UserService {
 
         var response;
         if (userRes) {
-            response =  new ResponseEntity(true, HttpStatus.OK, null, userRes);
+            response = new ResponseEntity(true, HttpStatus.OK, null, userRes);
         } else {
             response = new ResponseEntity(false, HttpStatus.BAD_REQUEST, `No user with email ${email}`, null);
         }
@@ -89,17 +91,19 @@ export class UserService {
         } else {
             return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
         }
-      
+
     }
 
     async checkLoginLookup(emailId, password, dbUser) {
 
         const loginLookup = await this.getLoginLookupByEmail(emailId);
+
         if (loginLookup) {
             const match = bcrypt.compareSync(password, loginLookup.password);
 
             if (match) {
-                return  dbUser;
+                var tokenRes = await this.authService.login(dbUser.data);
+                return new ResponseEntity(true, HttpStatus.OK, null, tokenRes);
             } else {
                 return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid username / password", null);
             }

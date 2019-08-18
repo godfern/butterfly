@@ -3,6 +3,7 @@ import { ResponseEntity } from "../common/ResponseEntity";
 import { OtpLookup } from "./model/otp.lookup.interface";
 import { UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
+import { AuthService } from "auth/auth.service";
 
 var otpGenerator = require('otp-generator')
 let dateTime = require('date-and-time');
@@ -28,7 +29,8 @@ let transpoter = nodeMailer.createTransport({
 @Injectable()
 export class UserServiceHelper {
 
-    constructor(@Inject('UserService') private userService: UserService) {
+    constructor(@Inject('UserService') private userService: UserService,
+    @Inject('AuthService')private readonly authService:AuthService) {
 
     }
 
@@ -98,10 +100,13 @@ export class UserServiceHelper {
 
                 console.log(user);
                 var updateUserRes = await this.userService.updateUserEmailVerified(userId);
+
                 console.log(updateUserRes);
 
-                return new ResponseEntity(true, HttpStatus.OK, null, "user verification success!");
-            } else {
+                var tokenRes = await this.authService.login(user);
+                
+                return new ResponseEntity(true, HttpStatus.OK, null, tokenRes);
+             } else {
                 return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid verification code", null);
             }
         }
