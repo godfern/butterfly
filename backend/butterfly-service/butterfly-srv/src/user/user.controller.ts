@@ -26,6 +26,7 @@ export class UserController {
         return await this.userService.getUserService(query.name);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Post('/create')
     async createUser(@Body() userReq, @Res() response) {
 
@@ -81,7 +82,6 @@ export class UserController {
 
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('/login')
     async loginUser(@Body() body, @Res() response) {
 
