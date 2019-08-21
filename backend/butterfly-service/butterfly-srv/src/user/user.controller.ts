@@ -95,10 +95,12 @@ export class UserController {
         var isUserExists = await this.userService.getUserByEmail(body.emailId);
 
         var res;
+
+        console.log(isUserExists);
+
         if (isUserExists.success) {
 
             if (isUserExists.data.userStatus == UserStatus.VERIFIED) {
-
                 //  once user is verified return access token
 
                 // check password from lookup collection

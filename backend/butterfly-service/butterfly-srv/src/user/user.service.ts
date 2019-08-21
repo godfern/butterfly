@@ -8,7 +8,7 @@ import { LoginLookup } from "./model/login.lookup.interface";
 import { OtpLookup } from "./model/otp.lookup.interface";
 import { User, UserStatus } from "./model/user.interface";
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
 @Injectable()
@@ -60,7 +60,10 @@ export class UserService {
     }
 
     async getUserByEmail(email: string) {
+        console.log("getUserByEmail "+email);
         const userRes = await this.userModel.findOne({ emailId: email });
+
+        console.log("getUserByEmail ", userRes);
 
         var response;
         if (userRes) {
