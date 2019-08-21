@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { AuthService } from "auth/auth.service";
+import { AuthService } from "../auth/auth.service";
 import { Model } from "mongoose";
 import { ResponseEntity } from "../common/ResponseEntity";
 import { AddUserModel } from "./model/add.user.model";

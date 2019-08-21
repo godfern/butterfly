@@ -3,7 +3,7 @@ import { ResponseEntity } from "../common/ResponseEntity";
 import { OtpLookup } from "./model/otp.lookup.interface";
 import { UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
-import { AuthService } from "auth/auth.service";
+import { AuthService } from "../auth/auth.service";
 
 var otpGenerator = require('otp-generator')
 let dateTime = require('date-and-time');
