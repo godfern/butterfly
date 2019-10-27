@@ -12,6 +12,7 @@ export interface User extends Document {
     lastName: string;
     userStatus: UserStatus;
     profilePicUrl: string;
+    fcmIds:string[];
     deleted: boolean;
     createTime: number;
     updatedTime: number;

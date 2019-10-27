@@ -47,6 +47,10 @@ export class UserService {
         return await this.userModel.update({ _id: userId }, { userStatus: UserStatus.VERIFIED, emailVerified: true });
     }
 
+    async updateUserFcmIds(userId,fcmIds:string[]) {
+        return await this.userModel.update({ _id: userId }, { fcmIds:fcmIds });
+    }
+
     async getUser(userId: string) {
         const userRes = await this.userModel.findOne({ _id: userId });
         if (userRes) {
@@ -74,6 +78,9 @@ export class UserService {
         return response
     }
 
+    async getAllUser() {
+        return await this.userModel.find();
+    }
     async removeUser(_id: string) {
         return await this.userModel.findByIdAndRemove(_id);
     }

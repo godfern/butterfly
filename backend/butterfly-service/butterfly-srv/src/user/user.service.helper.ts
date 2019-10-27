@@ -4,10 +4,12 @@ import { OtpLookup } from "./model/otp.lookup.interface";
 import { UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { AuthService } from "../auth/auth.service";
+import FCM_CONFIG from "../fcm.conf.json"
 
 var otpGenerator = require('otp-generator')
 let dateTime = require('date-and-time');
 var nodeMailer = require('nodemailer');
+var FCM = require('fcm-node');
 
 let transpoter = nodeMailer.createTransport({
     service:'gmail',
@@ -22,8 +24,6 @@ let transpoter = nodeMailer.createTransport({
         rejectUnauthorized: false
     }
 });
-
-
 
 
 @Injectable()
@@ -123,4 +123,35 @@ export class UserServiceHelper {
             return info;
         })
     }
+
+    async sendFcmNotification(token:string,title,body){
+        var serverKey = FCM_CONFIG.server_key; //put your server key here
+        var fcm = new FCM(serverKey);
+
+        var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+            to: token,
+          //  collapse_key: 'your_collapse_key',
+
+            notification: {
+                title: title,
+                body: body
+            },
+
+            // data: {  //you can send only notification or only data(or include both)
+            //     my_key: 'my value',
+            //     my_another_key: 'my another value'
+            // }
+        };
+
+       await fcm.send(message, function (err, response) {
+            if (err) {
+                console.log("Something has gone wrong!");
+            } else {
+                console.log("Successfully sent with response: ", response);
+            }
+        });
+
+    }
+
+
 }

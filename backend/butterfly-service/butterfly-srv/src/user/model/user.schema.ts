@@ -21,6 +21,7 @@ export const UserSchema = new mongoose.Schema({
         type: String, enum: ['REGISTERED', 'VERIFIED', 'DELETED'], default: 'REGISTERED'
     },
     profilePicUrl: String,
+    fcmIds: [String],
     deleted: Boolean,
 }, {
         timestamps: { createdAt: 'createTime', updatedAt: 'updateTime' },

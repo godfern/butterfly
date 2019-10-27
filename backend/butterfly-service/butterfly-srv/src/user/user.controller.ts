@@ -26,6 +26,10 @@ export class UserController {
         return await this.userService.getUserService(query.name);
     }
 
+    @Get('/all')
+    async getAllUser(){
+        return await this.userService.getAllUser();
+    }
     @Post('/create')
     async createUser(@Body() userReq, @Res() response) {
 
@@ -162,6 +166,22 @@ export class UserController {
         return res;
     }
 
+    @Put('/fcmids/:userId')
+    async updateUserFcmIds(@Param() params,@Body() body, @Res() response) {
+
+        if (!params.userId) {
+            throw new BadRequestException('user id is empty');
+        }
+
+        if (!body.fcmIds) {
+            throw new BadRequestException('fcm id is empty in request body');
+        }
+        const res = await this.userService.updateUserFcmIds(params.userId,body.fcmIds);
+
+        return response.status(res.statusCode).json(res);
+
+    }
+
     @UseGuards(AuthGuard('jwt'))
     @Delete('/remove/:userId')
     async removeUser(@Param() params) {
@@ -171,6 +191,12 @@ export class UserController {
         return await this.userService.removeUser(params.userId);
     }
 
+    @Post('/send/fcm/notification')
+    async sendFcmNotification(@Query('fcmId')fcmId:string,
+        @Query('title') title: string,
+        @Query('body') body: string,){
+        return await this.serviceHelper.sendFcmNotification(fcmId,title,body);
+    }
     // @Get('/send/tesst/mail')
     // async testMail() {
     //     return await this.serviceHelper.testMail();
