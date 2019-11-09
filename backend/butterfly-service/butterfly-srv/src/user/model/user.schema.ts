@@ -12,13 +12,15 @@ export const UserSchema = new mongoose.Schema({
     },
     emailId: String,
     emailVerified: Boolean,
+    phoneNumber: String,
+    phoneVerified: Boolean,
     roles: [{
         type: String, enum: ['USER', 'ADMIN', 'SUPER_ADMIN'], default: 'USER'
     }],
     firstName: String,
     lastName: String,
     userStatus: {
-        type: String, enum: ['REGISTERED', 'VERIFIED', 'DELETED'], default: 'REGISTERED'
+        type: String, enum: ['REGISTERED', 'PHONE_VERIFIED', 'EMAIL_VERIFIED','VERIFIED', 'DELETED'], default: 'REGISTERED'
     },
     profilePicUrl: String,
     fcmIds: [String],

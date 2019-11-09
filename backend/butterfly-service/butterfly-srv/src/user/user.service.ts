@@ -48,7 +48,7 @@ export class UserService {
     }
 
     async updateUserFcmIds(userId,fcmIds:string[]) {
-        return await this.userModel.update({ _id: userId }, { fcmIds:fcmIds });
+        return await this.userModel.update({ _id: userId }, { $addToSet: { fcmIds } });
     }
 
     async getUser(userId: string) {
@@ -78,6 +78,21 @@ export class UserService {
         return response
     }
 
+    async getUserByPhone(phoneNumber: string) {
+        console.log("getUser by phoneNumber " + phoneNumber);
+        const userRes = await this.userModel.findOne({ phoneNumber: phoneNumber });
+
+        console.log(" Res UserBy phoneNumber ", JSON.stringify(userRes));
+
+        var response;
+        if (userRes) {
+            response = new ResponseEntity(true, HttpStatus.OK, null, userRes);
+        } else {
+            response = new ResponseEntity(false, HttpStatus.BAD_REQUEST, `No user with phoneNumber ${phoneNumber}`, null);
+        }
+        return response
+    }
+
     async getAllUser() {
         return await this.userModel.find();
     }
@@ -101,7 +116,6 @@ export class UserService {
         } else {
             return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
         }
-
     }
 
     async checkLoginLookup(emailId, password, dbUser) {
@@ -139,5 +153,9 @@ export class UserService {
 
     async getLoginLookupByEmail(email: string) {
         return await this.loginLookupModel.findOne({ emailId: email });
+    }
+
+    async getLoginLookupByUserId(userId: string) {
+        return await this.loginLookupModel.findOne({ userId: userId });
     }
 }

@@ -7,5 +7,7 @@ export interface LoginLookup extends Document{
 
     emailId:string;
 
+    phoneNumber:string
+
     password:string
 }

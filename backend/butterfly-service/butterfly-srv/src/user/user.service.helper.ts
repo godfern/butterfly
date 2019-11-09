@@ -5,11 +5,12 @@ import { UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { AuthService } from "../auth/auth.service";
 import FCM_CONFIG from "../fcm.conf.json"
+import MSG_CONFIG from "../twillio_msg_config.json"
 
 var otpGenerator = require('otp-generator')
 let dateTime = require('date-and-time');
 var nodeMailer = require('nodemailer');
-var FCM = require('fcm-node');
+var FCM = require('fcm-node'); 
 
 let transpoter = nodeMailer.createTransport({
     service:'gmail',
@@ -25,13 +26,20 @@ let transpoter = nodeMailer.createTransport({
     }
 });
 
+var accountSid = MSG_CONFIG.account_sid; // Your Account SID from www.twilio.com/console
+var authToken = MSG_CONFIG.authToken;   // Your Auth Token from www.twilio.com/console
+
+var twilio = require('twilio');
+var client
+
+
 
 @Injectable()
 export class UserServiceHelper {
 
     constructor(@Inject('UserService') private userService: UserService,
     @Inject('AuthService')private readonly authService:AuthService) {
-
+        client = new twilio(accountSid, authToken);
     }
 
     async initiateVerification(userId: string) {
@@ -48,6 +56,47 @@ export class UserServiceHelper {
                     return new ResponseEntity(false, HttpStatus.FORBIDDEN, "Exceeded verification attempts ", null);
                 }
             }
+
+            var otpLookup: OtpLookup = {} as OtpLookup;
+
+            otpLookup.code = otpGenerator.generate(6, { alphabets: false, upperCase: false, specialChars: false });
+            otpLookup.userId = userId;
+            otpLookup.expireTime = dateTime.addHours(new Date, 1);
+
+            var otpLookupRes = await this.userService.createOtpLookup(otpLookup);
+
+            let HelperOptions = {
+                from: 'ggtest1213@gmail.com',
+                to: user.emailId,
+                subject: "Butterfly verification code",
+                text: "Your verification code is " + otpLookup.code
+            }
+
+            await this.testMail(HelperOptions);
+
+            console.log(otpLookupRes);
+
+            return new ResponseEntity(true, HttpStatus.CREATED, null, { "accId": otpLookupRes._id });
+
+        } else {
+            return new ResponseEntity(false, HttpStatus.NOT_FOUND, "User not found ", null);
+        }
+    }
+
+    async initiatePhoneVerification(userId: string) {
+
+        // get user from db
+        var user: any = await this.userService.getUser(userId);
+
+        if (user) {
+
+            // var attempts: any = await this.userService.getOtpLookupsByUser(userId);
+
+            // if (attempts) {
+            //     if (attempts.length > 5) {
+            //         return new ResponseEntity(false, HttpStatus.FORBIDDEN, "Exceeded verification attempts ", null);
+            //     }
+            // }
 
             var otpLookup: OtpLookup = {} as OtpLookup;
 
@@ -137,10 +186,10 @@ export class UserServiceHelper {
                 body: body
             },
 
-            // data: {  //you can send only notification or only data(or include both)
-            //     my_key: 'my value',
-            //     my_another_key: 'my another value'
-            // }
+            data: {  //you can send only notification or only data(or include both)
+                title: title,
+                body: body
+            }
         };
 
        await fcm.send(message, function (err, response) {
