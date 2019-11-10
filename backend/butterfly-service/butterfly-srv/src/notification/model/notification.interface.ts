@@ -6,4 +6,6 @@ export interface Notification extends Document {
     title: string;
     content: string;
     reciverEmail: string;
+    createTime: Date
+    updateTime: Date
 }

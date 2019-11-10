@@ -1,6 +1,6 @@
 {
   "name": "user-srv",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "user service",
   "author": "",
   "license": "MIT",
@@ -30,6 +30,7 @@
     "cors": "^2.8.5",
     "date-and-time": "^0.6.3",
     "fcm-node": "^1.5.2",
+    "lodash": "^4.17.15",
     "mongoose": "^5.1.1",
     "nodemailer": "^5.1.1",
     "otp-generator": "^1.1.0",

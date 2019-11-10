@@ -23,7 +23,7 @@ export class NotificationController {
     }
 
     @Get('/history')
-    async getNofications(@Query('userId')userId:string){
-        return await this.notificationService.getNotifications(userId);
+    async getNofications(@Query('emailId') emailId:string){
+        return await this.notificationService.getNotifications(emailId);
     }
 }

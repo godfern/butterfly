@@ -1,14 +1,16 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { User } from "user/model/user.interface";
 import { ResponseEntity } from "../../common/ResponseEntity";
 import FCM_CONFIG from "../../fcm.conf.json";
 import { UserDto } from "../../user/model/user.dto";
 import { UserService } from "../../user/user.service";
+import { NotificationHistoryDto } from "../model/notification.history.dto";
 import { Notification } from "../model/notification.interface";
 import { SendNotificationReq } from "../model/send.notification.req.model";
-
 var FCM = require('fcm-node');
+var _ = require('lodash');
 
 
 @Injectable()
@@ -45,7 +47,7 @@ export class NotificationService {
 
                 var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
                     to: token,
-            
+
                     notification: {
                         title: sendNotficationReq.title,
                         body: sendNotficationReq.content
@@ -88,7 +90,6 @@ export class NotificationService {
         } else {
             return new ResponseEntity(false, HttpStatus.EXPECTATION_FAILED, null, { message: "FcmIds for reciver not found" })
         }
-
     }
 
     async refreshContactList(err, response) {
@@ -96,7 +97,31 @@ export class NotificationService {
     }
 
 
-    async getNotifications(userId: string) {
-        return await this.notificaitonModel.find({})
+    async getNotifications(emailId: string) {
+        var resp: Notification[] = await this.notificaitonModel.find({ reciverEmail: emailId })
+        // populate notification history dto
+        var uniqNotification = _.uniqBy(resp, 'senderId');
+        var senderDetails = {}
+
+        for (let notification of uniqNotification) {
+
+            var user: User = await this.userService.getUser(notification.senderId)
+            senderDetails[notification.senderId] = user.firstName + " " + user.lastName
+        }
+
+        var notificationDtos: NotificationHistoryDto[] = []
+        resp.forEach(element => {
+            var name = senderDetails[element.senderId]
+
+            var notificationDto: NotificationHistoryDto = {
+                _id: element._id, senderId: element.senderId,
+                senderName: name, title: element.title, content: element.content, reciverEmail: element.reciverEmail, createTime: element.createTime,
+                updateTime: element.updateTime
+            }
+
+            notificationDtos.push(notificationDto)
+        });
+
+        return notificationDtos
     }
 }
