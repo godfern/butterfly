@@ -45,8 +45,7 @@ export class NotificationService {
 
                 var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
                     to: token,
-                    //  collapse_key: 'your_collapse_key',
-
+            
                     notification: {
                         title: sendNotficationReq.title,
                         body: sendNotficationReq.content
@@ -58,32 +57,46 @@ export class NotificationService {
                     }
                 };
 
-                await fcm.send(message, async function (err, response) {
-                    if (err) {
-                        console.log("Something has gone wrong!");
-                    } else {
-                        console.log("Successfully sent with response: ", response);
-                        isSent = true
-                    }
+                var obj: boolean = await new Promise(function (resolve, reject) {
+                    fcm.send(message, function (err, data) {
+                        if (err !== null) reject(false);
+                        else resolve(true);
+                    });
                 });
-            }
 
-            if (isSent){
+                if (obj) {
+                    isSent = obj
+                }
+
+                console.log("loop " + JSON.stringify(obj))
+            }
+            if (isSent) {
                 // once success of notification delivered save into history
-               var res = await this.notificaitonModel.create(sendNotficationReq)
+                var notification: Notification = {} as Notification
 
-               return new ResponseEntity(true,HttpStatus.OK,null,res)
-            }else{
-                return new ResponseEntity(false, HttpStatus.EXPECTATION_FAILED, null, {message:"could not send notification"})
+                notification.senderId = sendNotficationReq.senderId
+                notification.reciverEmail = sendNotficationReq.reciverEmail
+                notification.title = sendNotficationReq.title
+                notification.content = sendNotficationReq.content
+                var res = await this.notificaitonModel.create(notification)
+
+                return new ResponseEntity(true, HttpStatus.OK, null, res)
+            } else {
+                return new ResponseEntity(false, HttpStatus.EXPECTATION_FAILED, null, { message: "could not send notification" })
             }
-                
-        }else{
+
+        } else {
             return new ResponseEntity(false, HttpStatus.EXPECTATION_FAILED, null, { message: "FcmIds for reciver not found" })
         }
 
     }
 
+    async refreshContactList(err, response) {
+        alert('Hello World' + response);
+    }
+
+
     async getNotifications(userId: string) {
-        return await this.notificaitonModel.find({ senderId: userId })
+        return await this.notificaitonModel.find({})
     }
 }
