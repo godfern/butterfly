@@ -59,7 +59,7 @@ export class NotificationService {
                     }
                 };
 
-                var obj: boolean = await new Promise(function (resolve, reject) {
+                var obj = await new Promise(function (resolve, reject) {
                     fcm.send(message, function (err, data) {
                         if (err !== null) reject(false);
                         else resolve(true);
@@ -67,7 +67,7 @@ export class NotificationService {
                 });
 
                 if (obj) {
-                    isSent = obj
+                    isSent = true
                 }
 
                 console.log("loop " + JSON.stringify(obj))
