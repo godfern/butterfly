@@ -4,6 +4,7 @@ export interface AddUserModel {
     provider: string;
     primaryType: string;
     emailId: string;
+    phoneNumber:string;
     password: string;
     firstName: string;
     lastName: string;

@@ -6,6 +6,7 @@ export const LoginLookupSchema = new mongoose.Schema({
     _id: { type: String, default: uuid },
     userId: String,
     emailId: String,
+    phoneNumber:String,
     password: String
 }, {
         timestamps: { createdAt: 'createTime', updatedAt: 'updateTime' },

@@ -1,9 +1,13 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res } from "@nestjs/common";
-import { ResponseEntity } from "src/common/ResponseEntity";
-import { User, UserStatus } from "./model/user.interface";
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Inject, Param, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { ApiUseTags } from "@nestjs/swagger";
+import { ResponseEntity } from "../common/ResponseEntity";
+import { LoginReqModel } from "./model/login.req.model";
+import { PrimaryType, User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
 
+@ApiUseTags('user')
 @Controller('user')
 export class UserController {
 
@@ -17,11 +21,16 @@ export class UserController {
         return "success";
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/welcome')
     async getUserService(@Query() query) {
         return await this.userService.getUserService(query.name);
     }
 
+    @Get('/all')
+    async getAllUser() {
+        return await this.userService.getAllUser();
+    }
     @Post('/create')
     async createUser(@Body() userReq, @Res() response) {
 
@@ -29,6 +38,7 @@ export class UserController {
         if (!userReq) {
             throw new BadRequestException('create user req body is empty');
         }
+
         var userRes = await this.userService.getUserByEmail(userReq.emailId);
 
         // User response is success then user alreay exists so return 
@@ -58,6 +68,20 @@ export class UserController {
         return response.status(res.statusCode).json(res);
     }
 
+    @Post('/initiate/phone/verification')
+    async initiatePhoneVerification(@Query() userId, @Res() response) {
+
+        if (!userId) {
+            throw new BadRequestException('userid is missing in params');
+        }
+
+        console.log("initiating verfication for " + userId);
+
+        const res = await this.serviceHelper.initiateVerification(userId);
+
+        return response.status(res.statusCode).json(res);
+    }
+
     @Post('/verify/otp')
     async userVerifyOtp(@Body() body, @Res() response) {
 
@@ -78,22 +102,43 @@ export class UserController {
     }
 
     @Post('/login')
-    async loginUser(@Body() body, @Res() response) {
+    async loginUser(@Body() body: LoginReqModel, @Res() response) {
 
         console.log("login user")
-        if (!body.emailId) {
+        if (!body.provider) {
+            throw new BadRequestException('provider is missing in request');
+        }
+        if (body.provider == PrimaryType.EMAIL && !body.emailId) {
             throw new BadRequestException('emailId is missing in body');
+        } if (body.provider == PrimaryType.PHONE_NUMBER && !body.phoneNumber) {
+            throw new BadRequestException('phoneNumber is missing in body');
         }
         if (!body.password) {
             throw new BadRequestException('password is missing in body');
         }
 
-        var isUserExists = await this.userService.getUserByEmail(body.emailId);
+        var isUserExists
+
+        switch (body.provider) {
+            case PrimaryType.EMAIL:
+                isUserExists = await this.userService.getUserByEmail(body.emailId);
+                break;
+
+            case PrimaryType.PHONE_NUMBER:
+                isUserExists = await this.userService.getUserByPhone(body.phoneNumber);
+                break;
+        }
 
         var res;
+
+        console.log(isUserExists);
+
         if (isUserExists.success) {
 
             if (isUserExists.data.userStatus == UserStatus.VERIFIED) {
+                //  once user is verified return access token
+
+                // check password from lookup collection
                 res = await this.userService.checkLoginLookup(body.emailId, body.password, isUserExists);
             } else {
                 return response.status(HttpStatus.BAD_REQUEST).json(`User email ${body.emailId} is not verified yet.`);
@@ -106,6 +151,7 @@ export class UserController {
         return response.status(res.statusCode).json(res);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/email/:emailId')
     async getUserByEmail(@Param() params, @Res() res) {
 
@@ -117,6 +163,7 @@ export class UserController {
         return res.status(response.statusCode).json(response);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('/:userId')
     async getUser(@Param() params) {
 
@@ -127,6 +174,7 @@ export class UserController {
         return await this.userService.getUser(params.userId);
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Put('/:userId')
     async updateUser(@Param() params, @Body() userReq: User) {
 
@@ -149,6 +197,23 @@ export class UserController {
         return res;
     }
 
+    @Put('/fcmids/:userId')
+    async updateUserFcmIds(@Param() params, @Body() body, @Res() response) {
+
+        if (!params.userId) {
+            throw new BadRequestException('user id is empty');
+        }
+
+        if (!body.fcmIds) {
+            throw new BadRequestException('fcm id is empty in request body');
+        }
+        const res = await this.userService.updateUserFcmIds(params.userId, body.fcmIds);
+
+        return response.json(res);
+
+    }
+
+    @UseGuards(AuthGuard('jwt'))
     @Delete('/remove/:userId')
     async removeUser(@Param() params) {
         if (!params.userId) {
@@ -157,9 +222,12 @@ export class UserController {
         return await this.userService.removeUser(params.userId);
     }
 
-
-
-
+    @Post('/send/fcm/notification')
+    async sendFcmNotification(@Query('fcmId') fcmId: string,
+        @Query('title') title: string,
+        @Query('body') body: string, ) {
+        return await this.serviceHelper.sendFcmNotification(fcmId, title, body);
+    }
     // @Get('/send/tesst/mail')
     // async testMail() {
     //     return await this.serviceHelper.testMail();

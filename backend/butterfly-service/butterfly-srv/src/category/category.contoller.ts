@@ -1,6 +1,8 @@
 import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put } from "@nestjs/common";
 import { CategoryService } from "./model/category.service";
+import { ApiUseTags } from "@nestjs/swagger";
 
+@ApiUseTags('category')
 @Controller('category')
 export class CategoryContoller {
 

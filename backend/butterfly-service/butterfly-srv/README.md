@@ -60,6 +60,15 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Deploying the app in AWS
+
+Refer : https://www.youtube.com/watch?v=WxhFq64FQzA
+https://medium.com/@nishankjaintdk/setting-up-a-node-js-app-on-a-linux-ami-on-an-aws-ec2-instance-with-nginx-59cbc1bcc68c
+
+1. 
+
+
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).

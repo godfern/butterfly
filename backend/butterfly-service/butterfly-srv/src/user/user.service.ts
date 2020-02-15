@@ -1,13 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { AuthService } from "../auth/auth.service";
 import { Model } from "mongoose";
-import { ResponseEntity } from "src/common/ResponseEntity";
+import { ResponseEntity } from "../common/ResponseEntity";
 import { AddUserModel } from "./model/add.user.model";
 import { LoginLookup } from "./model/login.lookup.interface";
 import { OtpLookup } from "./model/otp.lookup.interface";
 import { User, UserStatus } from "./model/user.interface";
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
 @Injectable()
@@ -15,7 +16,8 @@ export class UserService {
 
     constructor(@InjectModel('User') private readonly userModel: Model<User>,
         @InjectModel('OtpLookup') private readonly otpLookupModel: Model<OtpLookup>,
-        @InjectModel('LoginLookup') private readonly loginLookupModel: Model<LoginLookup>) { }
+        @InjectModel('LoginLookup') private readonly loginLookupModel: Model<LoginLookup>,
+        @Inject('AuthService') private authService: AuthService) { }
 
     getUserService(name: string) {
         return "Welcome " + name + " butterfly";
@@ -45,6 +47,10 @@ export class UserService {
         return await this.userModel.update({ _id: userId }, { userStatus: UserStatus.VERIFIED, emailVerified: true });
     }
 
+    async updateUserFcmIds(userId,fcmIds:string[]) {
+        return await this.userModel.update({ _id: userId }, { $addToSet: { fcmIds } });
+    }
+
     async getUser(userId: string) {
         const userRes = await this.userModel.findOne({ _id: userId });
         if (userRes) {
@@ -58,17 +64,38 @@ export class UserService {
     }
 
     async getUserByEmail(email: string) {
+        console.log("getUserByEmail "+email);
         const userRes = await this.userModel.findOne({ emailId: email });
+
+        console.log("getUserByEmail ", userRes);
 
         var response;
         if (userRes) {
-            response =  new ResponseEntity(true, HttpStatus.OK, null, userRes);
+            response = new ResponseEntity(true, HttpStatus.OK, null, userRes);
         } else {
             response = new ResponseEntity(false, HttpStatus.BAD_REQUEST, `No user with email ${email}`, null);
         }
         return response
     }
 
+    async getUserByPhone(phoneNumber: string) {
+        console.log("getUser by phoneNumber " + phoneNumber);
+        const userRes = await this.userModel.findOne({ phoneNumber: phoneNumber });
+
+        console.log(" Res UserBy phoneNumber ", JSON.stringify(userRes));
+
+        var response;
+        if (userRes) {
+            response = new ResponseEntity(true, HttpStatus.OK, null, userRes);
+        } else {
+            response = new ResponseEntity(false, HttpStatus.BAD_REQUEST, `No user with phoneNumber ${phoneNumber}`, null);
+        }
+        return response
+    }
+
+    async getAllUser() {
+        return await this.userModel.find();
+    }
     async removeUser(_id: string) {
         return await this.userModel.findByIdAndRemove(_id);
     }
@@ -89,17 +116,18 @@ export class UserService {
         } else {
             return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
         }
-      
     }
 
     async checkLoginLookup(emailId, password, dbUser) {
 
         const loginLookup = await this.getLoginLookupByEmail(emailId);
+
         if (loginLookup) {
             const match = bcrypt.compareSync(password, loginLookup.password);
 
             if (match) {
-                return  dbUser;
+                var tokenRes = await this.authService.login(dbUser.data);
+                return new ResponseEntity(true, HttpStatus.OK, null, tokenRes);
             } else {
                 return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid username / password", null);
             }
@@ -125,5 +153,9 @@ export class UserService {
 
     async getLoginLookupByEmail(email: string) {
         return await this.loginLookupModel.findOne({ emailId: email });
+    }
+
+    async getLoginLookupByUserId(userId: string) {
+        return await this.loginLookupModel.findOne({ userId: userId });
     }
 }
