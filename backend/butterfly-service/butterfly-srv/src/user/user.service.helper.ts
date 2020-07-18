@@ -151,7 +151,7 @@ export class UserServiceHelper {
             ]
         }
 
-        //await this.testMail(HelperOptions);
+        await this.testMail(HelperOptions);
 
         console.log(otpLookupRes);
 
