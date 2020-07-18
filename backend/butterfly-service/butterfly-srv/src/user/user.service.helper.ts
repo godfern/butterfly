@@ -1,12 +1,14 @@
 import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { AuthService } from "../auth/auth.service";
 import { ResponseEntity } from "../common/ResponseEntity";
+import SMTP_CONFIG from "../config/mailjet-mail-config.json";
+import FCM_CONFIG from "../fcm.conf.json";
+import MSG_CONFIG from "../twillio_msg_config.json";
+import { LoginLookup } from "./model/login.lookup.interface";
 import { OtpLookup } from "./model/otp.lookup.interface";
+import { ResetPasswordRequest } from "./model/reset.password.req";
 import { UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
-import { AuthService } from "../auth/auth.service";
-import FCM_CONFIG from "../fcm.conf.json"
-import MSG_CONFIG from "../twillio_msg_config.json";
-import SMTP_CONFIG from "../config/mailjet-mail-config.json";
 
 var otpGenerator = require('otp-generator')
 let dateTime = require('date-and-time');
@@ -104,6 +106,58 @@ export class UserServiceHelper {
             return new ResponseEntity(false, HttpStatus.NOT_FOUND, "User not found ", null);
         }
     }
+    async initiatePasswordReset(email: string) {
+
+        // get user from db
+        var userRes: any = await this.userService.getUserByEmail(email);
+
+        if (!userRes) {
+            return new ResponseEntity(false, HttpStatus.NOT_FOUND, "User not found ", null);
+        }
+
+        // get login lookup
+
+        let loginLookupRes = await this.userService.getLoginLookupByEmail(email);
+
+        if (!loginLookupRes) {
+            return new ResponseEntity(false, HttpStatus.NOT_FOUND, "User not found ", null);
+        }
+
+        let resetToken = await otpGenerator.generate(10, { alphabets: true, upperCase: false, specialChars: false });
+        console.log('reset token ', resetToken)
+        
+        loginLookupRes.resetPasswordToken = resetToken
+
+        console.log(`req `, loginLookupRes);
+        // reset password in login lookup
+        var otpLookupRes = await this.userService.updateResetPasswordLookup(loginLookupRes);
+
+        let HelperOptions = {
+            "Messages": [
+                {
+                    "From": {
+                        "Email": SMTP_CONFIG.senderEmailId,
+                        "Name": SMTP_CONFIG.senderName,
+                    },
+                    "To": [
+                        {
+                            "Email": email,
+                            "Name": userRes.firstName
+                        }
+                    ],
+                    "Subject": SMTP_CONFIG.mailResetSubject,
+                    "HTMLPart": "<h3>Your password reset link token </h3><br />" + loginLookupRes.resetPasswordToken
+                }
+            ]
+        }
+
+        //await this.testMail(HelperOptions);
+
+        console.log(otpLookupRes);
+
+        return new ResponseEntity(true, HttpStatus.OK, null, { "success": "Password reset initiated, please follow the instruction" });
+
+    }
 
     async initiatePhoneVerification(userId: string) {
 
@@ -181,6 +235,31 @@ export class UserServiceHelper {
                 return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid verification code", null);
             }
         }
+
+    }
+
+    async verifyPasswordResetToken(passwordResetReq: ResetPasswordRequest) {
+
+
+        var lookupEntry: LoginLookup = await this.userService.getLoginLookupByEmail(passwordResetReq.emailId);
+
+        if (!lookupEntry) {
+            return new ResponseEntity(false, HttpStatus.NO_CONTENT, "User not found ", null);
+        }
+
+        console.log(lookupEntry)
+        // todo expire time check
+        // dateTime.format(new Date(lookupEntry.expireTime)).
+        if (lookupEntry.resetPasswordToken == passwordResetReq.resetToken) {
+
+            let resetPasswordRes = await this.userService.updateUserPassword(passwordResetReq.emailId, passwordResetReq.newpassword)
+
+            console.log('reset password res ', resetPasswordRes)
+            return new ResponseEntity(true, HttpStatus.OK, null, "User password resetted successfully");
+        } else {
+            return new ResponseEntity(false, HttpStatus.BAD_REQUEST, "Invalid verification code", null);
+        }
+
 
     }
 

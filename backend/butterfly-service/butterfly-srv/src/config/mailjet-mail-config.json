@@ -1,5 +1,6 @@
 {
     "senderEmailId":"godferndev@gmail.com",
     "senderName":"Butterfly App",
-    "mailSubject":"Butterfly App Verification Code"
+    "mailSubject":"Butterfly App Verification Code",
+    "mailResetSubject": "Butterfly Reset Password"
 }

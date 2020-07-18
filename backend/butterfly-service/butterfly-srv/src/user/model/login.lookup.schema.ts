@@ -7,7 +7,8 @@ export const LoginLookupSchema = new mongoose.Schema({
     userId: String,
     emailId: String,
     phoneNumber:String,
-    password: String
+    password: String,
+    resetPasswordToken:String
 }, {
         timestamps: { createdAt: 'createTime', updatedAt: 'updateTime' },
         versionKey: false // You should be aware of the outcome after set to false
