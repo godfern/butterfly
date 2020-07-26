@@ -6,6 +6,7 @@ import { LoginReqModel } from "./model/login.req.model";
 import { PrimaryType, User, UserStatus } from "./model/user.interface";
 import { UserService } from "./user.service";
 import { UserServiceHelper } from "./user.service.helper";
+import { ResetPasswordRequest } from "./model/reset.password.req";
 
 @ApiUseTags('user')
 @Controller('user')
@@ -227,6 +228,34 @@ export class UserController {
         @Query('title') title: string,
         @Query('body') body: string, ) {
         return await this.serviceHelper.sendFcmNotification(fcmId, title, body);
+    }
+
+    @Put('/initiate/password-reset')
+    async initiatePasswordReset(@Query('email') email:string, @Res() response) {
+
+        if (!email) {
+            throw new BadRequestException('email is missing in params');
+        }
+
+        console.log("initiating passoword reset for " + email);
+
+        const res = await this.serviceHelper.initiatePasswordReset(email);
+
+        return response.status(res.statusCode).json(res);
+    }
+
+    @Put('/verify/password-reset')
+    async verifyPasswordReset(@Body() resetPasswordReq: ResetPasswordRequest,@Res() response) {
+
+        if (!resetPasswordReq || !resetPasswordReq.emailId || !resetPasswordReq.newpassword || !resetPasswordReq.resetToken) {
+            throw new BadRequestException('Invalid resetPassword Request. Please check the payload.');
+        }
+
+        console.log("verifying passoword reset for " + resetPasswordReq.emailId);
+
+        const res = await this.serviceHelper.verifyPasswordResetToken(resetPasswordReq);
+
+        return response.status(res.statusCode).json(res);
     }
     // @Get('/send/tesst/mail')
     // async testMail() {

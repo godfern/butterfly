@@ -47,6 +47,10 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Postman collection
+
+https://www.getpostman.com/collections/7cc9a255ba0c577683fa
+
 ## Test
 
 ```bash

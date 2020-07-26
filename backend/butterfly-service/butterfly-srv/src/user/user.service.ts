@@ -105,8 +105,7 @@ export class UserService {
         loginLookup.userId = userId;
         loginLookup.emailId = userRes.emailId;
 
-        var hash = bcrypt.hashSync(userRes.password, saltRounds);
-
+        let hash = await this.createPassowrdHash(userRes.password)
         console.log('hash ', hash);
 
         if (hash) {
@@ -116,6 +115,25 @@ export class UserService {
         } else {
             return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
         }
+    }
+
+    async createPassowrdHash(password:string){
+        return bcrypt.hashSync(password, saltRounds);
+    }
+
+    async updateResetPasswordLookup(loginLookup:LoginLookup) {
+        console.log('updateResetPasswordLookup ', loginLookup)
+        if (loginLookup) {
+            return await loginLookup.save()
+        } else {
+            return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
+        }
+    }
+
+    async updateUserPassword(email, newpassword: string) {
+
+        let hash = await this.createPassowrdHash(newpassword)
+        return await this.loginLookupModel.update({ emailId: email }, { password: hash});
     }
 
     async checkLoginLookup(emailId, password, dbUser) {

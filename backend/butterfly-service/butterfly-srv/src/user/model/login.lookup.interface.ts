@@ -10,4 +10,7 @@ export interface LoginLookup extends Document{
     phoneNumber:string
 
     password:string
+
+    resetPasswordToken:string
+ 
 }
