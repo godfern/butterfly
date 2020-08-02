@@ -5,6 +5,8 @@ export const NotificationSchema = new mongoose.Schema({
 
     _id: { type: String, default: uuid },
     senderId:String,
+    senderName: String,
+    senderEmail: String,
     title:String,
     content:String,
     reciverEmail:String
