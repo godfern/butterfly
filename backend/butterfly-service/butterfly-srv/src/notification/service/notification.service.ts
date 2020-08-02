@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { User } from "user/model/user.interface";
 import { ResponseEntity } from "../../common/ResponseEntity";
 import FCM_CONFIG from "../../fcm.conf.json";
 import { UserDto } from "../../user/model/user.dto";
@@ -40,6 +39,7 @@ export class NotificationService {
         var serverKey = FCM_CONFIG.server_key; //put your server key here
         var fcm = new FCM(serverKey);
 
+        console.log("token ", tokens)
         if (tokens) {
 
             var isSent = false
@@ -61,8 +61,15 @@ export class NotificationService {
 
                 var obj = await new Promise(function (resolve, reject) {
                     fcm.send(message, function (err, data) {
-                        if (err !== null) reject(false);
-                        else resolve(true);
+
+                        if (err !== null) {
+                            console.log(err)
+                            resolve(false);
+                        } else {
+                            console.log(data)
+                            resolve(true);
+                        }
+
                     });
                 });
 
@@ -77,6 +84,8 @@ export class NotificationService {
                 var notification: Notification = {} as Notification
 
                 notification.senderId = sendNotficationReq.senderId
+                notification.senderName = sendNotficationReq.senderName
+                notification.senderEmail = sendNotficationReq.senderEmail
                 notification.reciverEmail = sendNotficationReq.reciverEmail
                 notification.title = sendNotficationReq.title
                 notification.content = sendNotficationReq.content
@@ -99,28 +108,27 @@ export class NotificationService {
 
     async getNotifications(emailId: string) {
         var resp: Notification[] = await this.notificaitonModel.find({ reciverEmail: emailId })
-        // populate notification history dto
-        var uniqNotification = _.uniqBy(resp, 'senderId');
+
         var senderDetails = {}
 
-        for (let notification of uniqNotification) {
-
-            var user: User = await this.userService.getUser(notification.senderId)
-            senderDetails[notification.senderId] = user.firstName + " " + user.lastName
-        }
-
         var notificationDtos: NotificationHistoryDto[] = []
-        resp.forEach(element => {
-            var name = senderDetails[element.senderId]
+
+        for (let element of resp) {
+
 
             var notificationDto: NotificationHistoryDto = {
                 _id: element._id, senderId: element.senderId,
-                senderName: name, title: element.title, content: element.content, reciverEmail: element.reciverEmail, createTime: element.createTime,
+                senderName: element.senderName, senderEmail: element.senderEmail,
+                title: element.title, content: element.content,
+                reciverEmail: element.reciverEmail, createTime: element.createTime,
                 updateTime: element.updateTime
             }
 
             notificationDtos.push(notificationDto)
-        });
+        }
+
+
+        console.log(notificationDtos)
 
         return notificationDtos
     }
