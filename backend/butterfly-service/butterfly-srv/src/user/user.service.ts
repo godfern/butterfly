@@ -53,14 +53,14 @@ export class UserService {
 
     async getUser(userId: string) {
         const userRes = await this.userModel.findOne({ _id: userId });
-        if (userRes) {
+       // if (userRes) {
             return userRes;
-        } else {
-            throw new HttpException({
-                status: HttpStatus.NO_CONTENT,
-                error: `No user with id ${userId}`,
-            }, 204);
-        }
+        // } else {
+        //     throw new HttpException({
+        //         status: HttpStatus.NO_CONTENT,
+        //         error: `No user with id ${userId}`,
+        //     }, 204);
+        // }
     }
 
     async getUserByEmail(email: string) {
