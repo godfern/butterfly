@@ -34,7 +34,7 @@
     "mongoose": "^5.1.1",
     "node-mailjet": "^3.3.1",
     "nodemailer": "^5.1.1",
-    "otp-generator": "^1.1.0",
+    "otp-generator": "^3.0.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
